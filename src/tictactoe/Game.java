@@ -32,6 +32,7 @@ public class Game implements Common{
                 }
             } else {
                 getCoordinatesFromRandom();
+                System.out.println("Making move level \"easy\"");
             }
             boolean stepMade = field.makeStep(x, y, currentPlayer.getC());
             if (!stepMade) {
