@@ -5,6 +5,15 @@ public class GameField implements Common{
 
     public GameField() {
         field = new char[3][3];
+        fill(CELL_EMPTY);
+    }
+
+    public void fill(char c) {
+        for (int i = 0; i < FIELD_SIZE_Y; i++) {
+            for (int j = 0; j < FIELD_SIZE_X; j++) {
+                makeStep(j, i, c);
+            }
+        }
     }
 
     public void print(){
@@ -14,7 +23,7 @@ public class GameField implements Common{
             for (int j = 0; j < field[i].length; j++) {
                 row.append(field[i][j]).append(" ");
             }
-            System.out.println(row.toString().trim() + " |");
+            System.out.println(row.toString() + "|");
         }
         System.out.println("-".repeat(9));
     }

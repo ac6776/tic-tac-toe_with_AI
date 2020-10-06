@@ -1,99 +1,69 @@
 package tictactoe;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class Game implements Common{
     private GameField field;
     private State state;
-    private char[] inputArray;
-    private char currentStep;
     private int x;
     private int y;
 
     public Game() {
         field = new GameField();
-        state = null;
+        state = State.PLAYING;
     }
 
     public void play() {
-        Scanner scanner = new Scanner(System.in);
-        while (state != State.PLAYING) {
-            System.out.println("Enter cells: ");
-            String input = scanner.nextLine();
-            try {
-                init(input);
-                int counter = 0;
-                for (int i = 0; i < FIELD_SIZE_Y; i++) {
-                    for (int j = 0; j < FIELD_SIZE_X; j++) {
-                        field.makeStep(j, i, inputArray[counter++]);
+        Player player = new Player(CELL_X, "Player");
+        Player computer = new Player(CELL_O, "Computer");
+        Player currentPlayer = player;
+        field.print();
+
+        while (state == State.PLAYING) {
+            if (currentPlayer.compare(player)) {
+                while (true) {
+                    try {
+                        getCoordinatesFromInput();
+                        break;
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
                 }
-                state = State.PLAYING;
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            } else {
+                getCoordinatesFromRandom();
             }
-        }
-        field.print();
-        while (state == State.PLAYING) {
-            System.out.print("Enter the coordinates:");
-            String input = scanner.nextLine();
-            try {
-                parseCoordinates(input);
-                boolean stepMade = field.makeStep(x, y, currentStep);
-                if (!stepMade) {
+            boolean stepMade = field.makeStep(x, y, currentPlayer.getC());
+            if (!stepMade) {
+                if (currentPlayer.compare(player)) {
                     System.out.println("This cell is occupied! Choose another one!");
-                } else {
-                    field.print();
-                    if (checkForEnd()) {
-                        if (checkForWin(field, x, y)) {
-                            if (currentStep == CELL_X) {
-                                state = State.X_WINS;
-                            }
-                            if (currentStep == CELL_O) {
-                                state = State.O_WINS;
-                            }
-                            if (checkForDraw(field)) {
-                                state = State.DRAW;
-                            }
-                            if (!isAbleToWin()) {
-                                state = State.GAME_NOT_FINISHED;
-                            }
+                }
+            } else {
+                field.print();
+                if (checkForEnd()) {
+                    if (checkForWin(field, x, y)) {
+                        if (currentPlayer.compare(player)) {
+                            state = State.X_WINS;
+                        }
+                        if (currentPlayer.compare(computer)) {
+                            state = State.O_WINS;
                         }
                     }
-                    currentStep = (currentStep == CELL_X ? CELL_O : CELL_X);
+                    if (checkForDraw(field)) {
+                        state = State.DRAW;
+                    }
+
                 }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+                currentPlayer = (currentPlayer.compare(player) ? computer : player);
             }
         }
         System.out.println(state.getMessage());
     }
 
-    private void init(String input) throws Exception {
-        if (input.length() != FIELD_SIZE) {
-            throw new Exception("Incorrect length");
-        }
-        inputArray = new char[FIELD_SIZE];
-        int countX = 0;
-        int countO = 0;
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if (c == 'X' || c == 'x') {
-                inputArray[i] = CELL_X;
-                countX++;
-            } else if (c == 'O' || c =='o') {
-                inputArray[i] = CELL_O;
-                countO++;
-            } else if (c == '_') {
-                inputArray[i] = CELL_EMPTY;
-            } else {
-                throw new Exception("Input incorrect");
-            }
-        }
-        currentStep = countO >= countX ? CELL_X : CELL_O;
-    }
-
-    private void parseCoordinates(String input) throws Exception {
+    private void getCoordinatesFromInput() throws Exception {
+        System.out.print("Enter the coordinates:");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
         String[] coords = input.split(" ");
         if (coords.length != 2) {
             throw new Exception("Coordinates should be 2");
@@ -111,8 +81,14 @@ public class Game implements Common{
         y = FIELD_SIZE_Y - y;
     }
 
+    private void getCoordinatesFromRandom() {
+        Random random = new Random();
+        x = random.nextInt(3);
+        y = FIELD_SIZE_Y - 1 - random.nextInt(3);
+    }
+
     public boolean checkForEnd() {
-        return checkForWin(field, x, y) || checkForDraw(field) || !isAbleToWin();
+        return checkForWin(field, x, y) || checkForDraw(field);
     }
 
     public boolean checkForWin(GameField field, int x, int y) {
@@ -122,8 +98,10 @@ public class Game implements Common{
     private boolean checkRow(GameField field, int y) {
         int counter = 0;
         for (int j = 0; j < LENGTH_FOR_WIN - 1; j++) {
-            if (field.getField()[y][j] == field.getField()[y][j + 1]) {
-                counter++;
+            if (field.getField()[y][j] != CELL_EMPTY) {
+                if (field.getField()[y][j] == field.getField()[y][j + 1]) {
+                    counter++;
+                }
             }
         }
         return counter == LENGTH_FOR_WIN - 1;
@@ -131,8 +109,10 @@ public class Game implements Common{
     private boolean checkColumn(GameField field, int x) {
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field.getField()[i][x] == field.getField()[i + 1][x]) {
-                counter++;
+            if (field.getField()[i][x] != CELL_EMPTY) {
+                if (field.getField()[i][x] == field.getField()[i + 1][x]) {
+                    counter++;
+                }
             }
         }
         return counter == LENGTH_FOR_WIN - 1;
@@ -140,8 +120,10 @@ public class Game implements Common{
     private boolean checkMainDiag(GameField field) {
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field.getField()[i][i] == field.getField()[i + 1][i + 1]) {
-                counter++;
+            if (field.getField()[i][i] != CELL_EMPTY) {
+                if (field.getField()[i][i] == field.getField()[i + 1][i + 1]) {
+                    counter++;
+                }
             }
         }
         return counter == LENGTH_FOR_WIN - 1;
@@ -149,8 +131,10 @@ public class Game implements Common{
     private boolean checkSecondDiag(GameField field) {
         int counter = 0;
         for (int j = LENGTH_FOR_WIN - 1, i = 0; j > 0; j--, i++) {
-            if (field.getField()[i][j] == field.getField()[i + 1][j - 1]) {
-                counter++;
+            if (field.getField()[i][j] != CELL_EMPTY) {
+                if (field.getField()[i][j] == field.getField()[i + 1][j - 1]) {
+                    counter++;
+                }
             }
         }
         return counter == LENGTH_FOR_WIN - 1;
