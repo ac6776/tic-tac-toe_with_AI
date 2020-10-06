@@ -52,13 +52,11 @@ public class Game implements Common{
                             if (currentStep == CELL_O) {
                                 state = State.O_WINS;
                             }
-                            if (checkForDraw(field)) {
-                                state = State.DRAW;
-                            }
-                            if (!isAbleToWin()) {
-                                state = State.GAME_NOT_FINISHED;
-                            }
+                        } else {
+                            state = State.DRAW;
                         }
+                    } else {
+                        state = State.GAME_NOT_FINISHED;
                     }
                     currentStep = (currentStep == CELL_X ? CELL_O : CELL_X);
                 }
@@ -95,9 +93,9 @@ public class Game implements Common{
 
     private void parseCoordinates(String input) throws Exception {
         String[] coords = input.split(" ");
-        if (coords.length != 2) {
-            throw new Exception("Coordinates should be 2");
-        }
+//        if (coords.length != 2) {
+//            throw new Exception("Coordinates should be 2");
+//        }
         try {
             x = Integer.parseInt(coords[0]);
             y = Integer.parseInt(coords[1]);
@@ -112,7 +110,7 @@ public class Game implements Common{
     }
 
     public boolean checkForEnd() {
-        return checkForWin(field, x, y) || checkForDraw(field) || !isAbleToWin();
+        return checkForWin(field, x, y) || checkForDraw(field);
     }
 
     public boolean checkForWin(GameField field, int x, int y) {
@@ -167,7 +165,7 @@ public class Game implements Common{
         return true;
     }
 
-    private boolean isAbleToWin() {
+    private boolean isAbleToWin(GameField field) {
         return fillField(CELL_O) || fillField(CELL_X);
     }
     private boolean fillField(char cell) {
