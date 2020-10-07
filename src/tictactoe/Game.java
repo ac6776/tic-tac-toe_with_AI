@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 public class Game implements Common{
     private GameField field;
+    private InputType inputType;
     private State state;
     private Player player1;
     private Player player2;
@@ -14,106 +15,74 @@ public class Game implements Common{
 
     public Game() {
         field = new GameField();
-        state = null;
+        state = State.INIT;
     }
 
     public void play() {
+        Scanner scanner = new Scanner(System.in);
+
         while (state != State.EXIT) {
-            while (state != State.PLAYING) {
-                Scanner scanner = new Scanner(System.in);
-                System.out.print("Input command:");
-                String input = scanner.nextLine();
-                if(input.equals("exit")) {
-                    state = State.EXIT;
+            switch (state) {
+                case INIT: {
+                    state.print();
+                    String input = scanner.nextLine();
+                    try {
+                        parseInput(input);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
-                } else {
-                    getCommandFromInput(input);
-                    field.print();
                 }
-            }
-            while (state == State.PLAYING) {
-                if (currentPlayer.getType() == Player.Type.USER) {
-                    while (true) {
+                case PLAYING: {
+                    if (currentPlayer.getType() == Player.Type.USER) {
+                        System.out.println("Enter the coordinates:");
+                        String input = scanner.nextLine();
                         try {
-                            getCoordinatesFromInput();
-                            break;
+                            parseInput(input);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
+
+                    } else {
+                        getCoordinatesFromRandom();
                     }
-                } else {
-                    getCoordinatesFromRandom();
-                }
-                boolean stepMade = field.makeStep(x, y, currentPlayer.getC());
-                if (!stepMade) {
-                    if (currentPlayer.getType() == Player.Type.USER) {
-                        System.out.println("This cell is occupied! Choose another one!");
-                    }
-                } else {
-                    if (currentPlayer.getType() != Player.Type.USER) {
-                        System.out.println("Making move level \"" + currentPlayer.getType().toString().toLowerCase() + "\"");
-                    }
-                    field.print();
-                    if (checkForEnd()) {
-                        if (checkForWin(field, x, y)) {
-                            if (currentPlayer.getC() == CELL_X) {
-                                state = State.X_WINS;
+                    if (currentPlayer.move(x, y, field)) {
+                        if (currentPlayer.getType() != Player.Type.USER) {
+                            System.out.println("Making move level \"" + currentPlayer.getType().toString().toLowerCase() + "\"");
+                        }
+                        field.print();
+                        if (checkForEnd()) {
+                            if (checkForWin(field, x, y)) {
+                                if (currentPlayer.getC() == CELL_X) {
+                                    state = State.X_WINS;
+                                    state.print();
+                                }
+                                if (currentPlayer.getC() == CELL_O) {
+                                    state = State.O_WINS;
+                                    state.print();
+                                }
+                            } else {
+                                state = State.DRAW;
                                 state.print();
                             }
-                            if (currentPlayer.getC() == CELL_O) {
-                                state = State.O_WINS;
-                                state.print();
-                            }
-                        } else {
-                            state = State.DRAW;
-                            state.print();
+                            state = State.INIT;
+                        }
+                        currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
+                    } else {
+                        if (currentPlayer.getType() == Player.Type.USER) {
+                            System.out.println("This cell is occupied! Choose another one!");
                         }
                     }
-                    currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
+                    break;
                 }
             }
         }
-    }
-
-    private void getCoordinatesFromInput() throws Exception {
-        System.out.print("Enter the coordinates:");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        String[] coords = input.split(" ");
-        if (coords.length != 2) {
-            throw new Exception("Coordinates should be 2");
-        }
-        try {
-            x = Integer.parseInt(coords[0]);
-            y = Integer.parseInt(coords[1]);
-        } catch (NumberFormatException e) {
-            throw new Exception("You should enter numbers!");
-        }
-        if (x > FIELD_SIZE_X || x < 0 || y > FIELD_SIZE_Y || y < 0) {
-            throw new Exception(String.format("Coordinates should be from 1 to %d!", FIELD_SIZE_X));
-        }
-        x = x - 1;
-        y = FIELD_SIZE_Y - y;
     }
 
     private void getCoordinatesFromRandom() {
         Random random = new Random();
         x = random.nextInt(3);
         y = FIELD_SIZE_Y - 1 - random.nextInt(3);
-    }
-
-    private void getCommandFromInput(String input) {
-        input = input.trim();
-        if (input.startsWith("start")) {
-            try {
-                player1 = new Player(CELL_X, input.split(" ")[1].toUpperCase());
-                player2 = new Player(CELL_O, input.split(" ")[2].toUpperCase());
-                currentPlayer = player1;
-                state = State.PLAYING;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public boolean checkForEnd() {
@@ -195,5 +164,45 @@ public class Game implements Common{
             }
         }
         return false;
+    }
+
+    enum InputType {
+        EXIT,
+        COMMAND,
+        COORDINATES
+    }
+
+    private void parseInput(String input) throws Exception {
+        String[] command = input.trim().toLowerCase().split(" ");
+        switch (state) {
+            case INIT: {
+                if("exit".equals(input.trim().toLowerCase())) {
+                    state = State.EXIT;
+                } else if (command[0].equals("start")) {
+                    player1 = new Player(CELL_X, command[1].toUpperCase());
+                    player2 = new Player(CELL_O, command[2].toUpperCase());
+                    currentPlayer = player1;
+                    state = State.PLAYING;
+                }
+                break;
+            }
+            case PLAYING: {
+                if (command.length != 2) {
+                    throw new Exception("Coordinates should be 2");
+                }
+                try {
+                    x = Integer.parseInt(command[0]);
+                    y = Integer.parseInt(command[1]);
+                } catch (NumberFormatException e) {
+                    throw new Exception("You should enter numbers!");
+                }
+                if (x > FIELD_SIZE_X || x < 0 || y > FIELD_SIZE_Y || y < 0) {
+                    throw new Exception(String.format("Coordinates should be from 1 to %d!", FIELD_SIZE_X));
+                }
+                x = x - 1;
+                y = FIELD_SIZE_Y - y;
+                break;
+            }
+        }
     }
 }

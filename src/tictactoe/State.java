@@ -1,6 +1,7 @@
 package tictactoe;
 
 public enum State {
+    INIT("Input command:"),
     PLAYING("Playing"),
     GAME_NOT_FINISHED("Game not finished"),
     DRAW("Draw"),
