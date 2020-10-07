@@ -5,7 +5,8 @@ public enum State {
     GAME_NOT_FINISHED("Game not finished"),
     DRAW("Draw"),
     X_WINS("X wins"),
-    O_WINS("O wins");
+    O_WINS("O wins"),
+    EXIT("Exiting");
 
     private String message;
 
@@ -15,5 +16,9 @@ public enum State {
 
     public String getMessage() {
         return message;
+    }
+
+    public void print() {
+        System.out.println(message);
     }
 }

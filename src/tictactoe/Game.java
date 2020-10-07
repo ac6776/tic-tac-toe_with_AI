@@ -6,59 +6,73 @@ import java.util.Scanner;
 public class Game implements Common{
     private GameField field;
     private State state;
+    private Player player1;
+    private Player player2;
+    private Player currentPlayer;
     private int x;
     private int y;
 
     public Game() {
         field = new GameField();
-        state = State.PLAYING;
+        state = null;
     }
 
     public void play() {
-        Player player = new Player(CELL_X, "Player");
-        Player computer = new Player(CELL_O, "Computer");
-        Player currentPlayer = player;
-        field.print();
-
-        while (state == State.PLAYING) {
-            if (currentPlayer.compare(player)) {
-                while (true) {
-                    try {
-                        getCoordinatesFromInput();
-                        break;
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
+        while (state != State.EXIT) {
+            while (state != State.PLAYING) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.print("Input command:");
+                String input = scanner.nextLine();
+                if(input.equals("exit")) {
+                    state = State.EXIT;
+                    break;
+                } else {
+                    getCommandFromInput(input);
+                    field.print();
                 }
-            } else {
-                getCoordinatesFromRandom();
-                System.out.println("Making move level \"easy\"");
             }
-            boolean stepMade = field.makeStep(x, y, currentPlayer.getC());
-            if (!stepMade) {
-                if (currentPlayer.compare(player)) {
-                    System.out.println("This cell is occupied! Choose another one!");
-                }
-            } else {
-                field.print();
-                if (checkForEnd()) {
-                    if (checkForWin(field, x, y)) {
-                        if (currentPlayer.compare(player)) {
-                            state = State.X_WINS;
-                        }
-                        if (currentPlayer.compare(computer)) {
-                            state = State.O_WINS;
+            while (state == State.PLAYING) {
+                if (currentPlayer.getType() == Player.Type.USER) {
+                    while (true) {
+                        try {
+                            getCoordinatesFromInput();
+                            break;
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
                         }
                     }
-                    if (checkForDraw(field)) {
-                        state = State.DRAW;
-                    }
-
+                } else {
+                    getCoordinatesFromRandom();
                 }
-                currentPlayer = (currentPlayer.compare(player) ? computer : player);
+                boolean stepMade = field.makeStep(x, y, currentPlayer.getC());
+                if (!stepMade) {
+                    if (currentPlayer.getType() == Player.Type.USER) {
+                        System.out.println("This cell is occupied! Choose another one!");
+                    }
+                } else {
+                    if (currentPlayer.getType() != Player.Type.USER) {
+                        System.out.println("Making move level \"" + currentPlayer.getType().toString().toLowerCase() + "\"");
+                    }
+                    field.print();
+                    if (checkForEnd()) {
+                        if (checkForWin(field, x, y)) {
+                            if (currentPlayer.getC() == CELL_X) {
+                                state = State.X_WINS;
+                                state.print();
+                            }
+                            if (currentPlayer.getC() == CELL_O) {
+                                state = State.O_WINS;
+                                state.print();
+                            }
+                        } else {
+                            state = State.DRAW;
+                            state.print();
+                        }
+                    }
+                    currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
+                }
             }
         }
-        System.out.println(state.getMessage());
     }
 
     private void getCoordinatesFromInput() throws Exception {
@@ -86,6 +100,20 @@ public class Game implements Common{
         Random random = new Random();
         x = random.nextInt(3);
         y = FIELD_SIZE_Y - 1 - random.nextInt(3);
+    }
+
+    private void getCommandFromInput(String input) {
+        input = input.trim();
+        if (input.startsWith("start")) {
+            try {
+                player1 = new Player(CELL_X, input.split(" ")[1].toUpperCase());
+                player2 = new Player(CELL_O, input.split(" ")[2].toUpperCase());
+                currentPlayer = player1;
+                state = State.PLAYING;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean checkForEnd() {
