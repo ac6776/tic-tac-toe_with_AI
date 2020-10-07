@@ -16,6 +16,7 @@ public class Game implements Common{
     public Game() {
         field = new GameField();
         state = State.INIT;
+        inputType = InputType.COMMAND;
     }
 
     public void play() {
@@ -28,13 +29,14 @@ public class Game implements Common{
                     String input = scanner.nextLine();
                     try {
                         parseInput(input);
+                        field.print();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
                 case PLAYING: {
-                    if (currentPlayer.getType() == Player.Type.USER) {
+                    if (currentPlayer instanceof User) {
                         System.out.println("Enter the coordinates:");
                         String input = scanner.nextLine();
                         try {
@@ -42,13 +44,10 @@ public class Game implements Common{
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
-
-                    } else {
-                        getCoordinatesFromRandom();
                     }
-                    if (currentPlayer.move(x, y, field)) {
-                        if (currentPlayer.getType() != Player.Type.USER) {
-                            System.out.println("Making move level \"" + currentPlayer.getType().toString().toLowerCase() + "\"");
+                    if (currentPlayer.move(field)) {
+                        if (currentPlayer instanceof AI) {
+                            System.out.println("Making move level \"" + ((AI) currentPlayer).getLevel() + "\"");
                         }
                         field.print();
                         if (checkForEnd()) {
@@ -69,9 +68,7 @@ public class Game implements Common{
                         }
                         currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
                     } else {
-                        if (currentPlayer.getType() == Player.Type.USER) {
-                            System.out.println("This cell is occupied! Choose another one!");
-                        }
+                        System.out.println("This cell is occupied! Choose another one!");
                     }
                     break;
                 }
