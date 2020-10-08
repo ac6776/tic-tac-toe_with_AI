@@ -33,12 +33,9 @@ public class PlayerUser implements Player, Common {
 
     @Override
     public boolean move(GameField field) {
-        while (true) {
-            if (field.makeStep(x, y, c)) {
-                break;
-            } else {
-                System.out.println("This cell is occupied! Choose another one!");
-            }
+        if (!field.makeStep(x, y, c)) {
+            System.out.println("This cell is occupied! Choose another one!");
+            return false;
         }
         return true;
     }

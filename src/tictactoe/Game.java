@@ -22,7 +22,9 @@ public class Game implements Common{
                 case INIT: {
                     state.print();
                     String input = scanner.nextLine();
-                    parseInput(input);
+                    if (parseInput(input)) {
+                        field.print();
+                    }
                     break;
                 }
                 case PLAYING: {
@@ -33,27 +35,28 @@ public class Game implements Common{
                             input = scanner.nextLine();
                         } while (!parseInput(input));
                     }
-                    currentPlayer.move(field);
-                    field.print();
+                    if (currentPlayer.move(field)) {
+                        field.print();
 
-                    if (checkForEnd()) {
-                        if (checkForWin(field, currentPlayer.getX(), currentPlayer.getY())) {
-                            if (currentPlayer.getC() == CELL_X) {
-                                state = State.X_WINS;
+                        if (checkForEnd()) {
+                            if (checkForWin(field, currentPlayer.getX(), currentPlayer.getY())) {
+                                if (currentPlayer.getC() == CELL_X) {
+                                    state = State.X_WINS;
+                                    state.print();
+                                }
+                                if (currentPlayer.getC() == CELL_O) {
+                                    state = State.O_WINS;
+                                    state.print();
+                                }
+                            } else {
+                                state = State.DRAW;
                                 state.print();
                             }
-                            if (currentPlayer.getC() == CELL_O) {
-                                state = State.O_WINS;
-                                state.print();
-                            }
-                        } else {
-                            state = State.DRAW;
-                            state.print();
+                            state = State.INIT;
                         }
-                        state = State.INIT;
+                        currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
+                        break;
                     }
-                    currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
-                    break;
                 }
             }
         }
@@ -158,6 +161,8 @@ public class Game implements Common{
                     } catch (Exception e) {
                         System.out.println("Incorrect input");
                     }
+                } else {
+                    System.out.println("Incorrect input");
                 }
                 return false;
             }
