@@ -55,8 +55,8 @@ public class Game implements Common{
                             state = State.INIT;
                         }
                         currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
-                        break;
                     }
+                    break;
                 }
             }
         }
@@ -169,12 +169,10 @@ public class Game implements Common{
             case PLAYING: {
                 if (command.length != 2) {
                     System.out.println("Coordinates should be 2");
+                    return false;
                 } else {
-                    if (((PlayerUser)currentPlayer).setX(command[0]) && ((PlayerUser)currentPlayer).setY(command[1])) {
-                        return true;
-                    }
+                    return ((PlayerUser) currentPlayer).setX(command[0]) && ((PlayerUser) currentPlayer).setY(command[1]);
                 }
-                return false;
             }
         }
         return false;
