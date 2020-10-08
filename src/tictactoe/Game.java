@@ -1,22 +1,17 @@
 package tictactoe;
 
-import java.util.Random;
 import java.util.Scanner;
 
 public class Game implements Common{
     private GameField field;
-    private InputType inputType;
     private State state;
     private Player player1;
     private Player player2;
     private Player currentPlayer;
-    private int x;
-    private int y;
 
     public Game() {
         field = new GameField();
         state = State.INIT;
-        inputType = InputType.COMMAND;
     }
 
     public void play() {
@@ -29,14 +24,13 @@ public class Game implements Common{
                     String input = scanner.nextLine();
                     try {
                         parseInput(input);
-                        field.print();
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
                 case PLAYING: {
-                    if (currentPlayer instanceof User) {
+                    if (currentPlayer instanceof PlayerUser) {
                         System.out.println("Enter the coordinates:");
                         String input = scanner.nextLine();
                         try {
@@ -45,45 +39,34 @@ public class Game implements Common{
                             System.out.println(e.getMessage());
                         }
                     }
-                    if (currentPlayer.move(field)) {
-                        if (currentPlayer instanceof AI) {
-                            System.out.println("Making move level \"" + ((AI) currentPlayer).getLevel() + "\"");
-                        }
-                        field.print();
-                        if (checkForEnd()) {
-                            if (checkForWin(field, x, y)) {
-                                if (currentPlayer.getC() == CELL_X) {
-                                    state = State.X_WINS;
-                                    state.print();
-                                }
-                                if (currentPlayer.getC() == CELL_O) {
-                                    state = State.O_WINS;
-                                    state.print();
-                                }
-                            } else {
-                                state = State.DRAW;
+                    currentPlayer.move(field);
+                    field.print();
+
+                    if (checkForEnd()) {
+                        if (checkForWin(field, currentPlayer.getX(), currentPlayer.getY())) {
+                            if (currentPlayer.getC() == CELL_X) {
+                                state = State.X_WINS;
                                 state.print();
                             }
-                            state = State.INIT;
+                            if (currentPlayer.getC() == CELL_O) {
+                                state = State.O_WINS;
+                                state.print();
+                            }
+                        } else {
+                            state = State.DRAW;
+                            state.print();
                         }
-                        currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
-                    } else {
-                        System.out.println("This cell is occupied! Choose another one!");
+                        state = State.INIT;
                     }
+                    currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
                     break;
                 }
             }
         }
     }
 
-    private void getCoordinatesFromRandom() {
-        Random random = new Random();
-        x = random.nextInt(3);
-        y = FIELD_SIZE_Y - 1 - random.nextInt(3);
-    }
-
     public boolean checkForEnd() {
-        return checkForWin(field, x, y) || checkForDraw(field);
+        return checkForWin(field, currentPlayer.getX(), currentPlayer.getY()) || checkForDraw(field);
     }
 
     public boolean checkForWin(GameField field, int x, int y) {
@@ -149,6 +132,7 @@ public class Game implements Common{
     private boolean isAbleToWin() {
         return fillField(CELL_O) || fillField(CELL_X);
     }
+
     private boolean fillField(char cell) {
         GameField tmpField = GameField.copy(field);
         for (int i = 0; i < FIELD_SIZE_Y; i++) {
@@ -163,12 +147,6 @@ public class Game implements Common{
         return false;
     }
 
-    enum InputType {
-        EXIT,
-        COMMAND,
-        COORDINATES
-    }
-
     private void parseInput(String input) throws Exception {
         String[] command = input.trim().toLowerCase().split(" ");
         switch (state) {
@@ -176,14 +154,15 @@ public class Game implements Common{
                 if("exit".equals(input.trim().toLowerCase())) {
                     state = State.EXIT;
                 } else if (command[0].equals("start")) {
-                    player1 = new Player(CELL_X, command[1].toUpperCase());
-                    player2 = new Player(CELL_O, command[2].toUpperCase());
+                    player1 = createPlayer(command[1], CELL_X);
+                    player2 = createPlayer(command[2], CELL_O);
                     currentPlayer = player1;
                     state = State.PLAYING;
                 }
                 break;
             }
             case PLAYING: {
+                int x, y;
                 if (command.length != 2) {
                     throw new Exception("Coordinates should be 2");
                 }
@@ -196,10 +175,17 @@ public class Game implements Common{
                 if (x > FIELD_SIZE_X || x < 0 || y > FIELD_SIZE_Y || y < 0) {
                     throw new Exception(String.format("Coordinates should be from 1 to %d!", FIELD_SIZE_X));
                 }
-                x = x - 1;
-                y = FIELD_SIZE_Y - y;
+                ((PlayerUser)currentPlayer).setX(x - 1);
+                ((PlayerUser)currentPlayer).setY(FIELD_SIZE_Y - y);
                 break;
             }
         }
+    }
+
+    private Player createPlayer(String type, char c) {
+        if (type.equalsIgnoreCase("user")) {
+            return new PlayerUser(c);
+        }
+        return new PlayerAI(c, type);
     }
 }
