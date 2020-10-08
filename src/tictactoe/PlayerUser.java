@@ -1,6 +1,8 @@
 package tictactoe;
 
-public class PlayerUser implements Player {
+import java.sql.Struct;
+
+public class PlayerUser implements Player, Common {
     private char c;
     private int x;
     private int y;
@@ -41,11 +43,35 @@ public class PlayerUser implements Player {
         return true;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public boolean setX(String inputX) {
+        int x = parseCoordinate(inputX);
+        if (x != -1) {
+            this.x = x - 1;
+            return true;
+        }
+        return false;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public boolean setY(String inputY) {
+        int y = parseCoordinate(inputY);
+        if (y != -1) {
+            this.y = FIELD_SIZE_Y - y;
+            return true;
+        }
+        return false;
+    }
+
+    public int parseCoordinate(String input) {
+        int coordinate = -1;
+        try {
+            coordinate = Integer.parseInt(input);
+            if (coordinate > FIELD_SIZE_X || coordinate < 0) {
+                System.out.printf("Coordinates should be from 1 to %d!\n", FIELD_SIZE_X);
+                coordinate = -1;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("You should enter numbers!");
+        }
+        return coordinate;
     }
 }

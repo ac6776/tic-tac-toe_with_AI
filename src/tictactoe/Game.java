@@ -22,22 +22,16 @@ public class Game implements Common{
                 case INIT: {
                     state.print();
                     String input = scanner.nextLine();
-                    try {
-                        parseInput(input);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
+                    parseInput(input);
                     break;
                 }
                 case PLAYING: {
                     if (currentPlayer instanceof PlayerUser) {
-                        System.out.println("Enter the coordinates:");
-                        String input = scanner.nextLine();
-                        try {
-                            parseInput(input);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
+                        String input;
+                        do {
+                            System.out.println("Enter the coordinates:");
+                            input = scanner.nextLine();
+                        } while (!parseInput(input));
                     }
                     currentPlayer.move(field);
                     field.print();
@@ -147,39 +141,38 @@ public class Game implements Common{
         return false;
     }
 
-    private void parseInput(String input) throws Exception {
+    private boolean parseInput(String input) {
         String[] command = input.trim().toLowerCase().split(" ");
         switch (state) {
             case INIT: {
                 if("exit".equals(input.trim().toLowerCase())) {
                     state = State.EXIT;
+                    return true;
                 } else if (command[0].equals("start")) {
-                    player1 = createPlayer(command[1], CELL_X);
-                    player2 = createPlayer(command[2], CELL_O);
-                    currentPlayer = player1;
-                    state = State.PLAYING;
+                    try {
+                        player1 = createPlayer(command[1], CELL_X);
+                        player2 = createPlayer(command[2], CELL_O);
+                        currentPlayer = player1;
+                        state = State.PLAYING;
+                        return true;
+                    } catch (Exception e) {
+                        System.out.println("Incorrect input");
+                    }
                 }
-                break;
+                return false;
             }
             case PLAYING: {
-                int x, y;
                 if (command.length != 2) {
-                    throw new Exception("Coordinates should be 2");
+                    System.out.println("Coordinates should be 2");
+                } else {
+                    if (((PlayerUser)currentPlayer).setX(command[0]) && ((PlayerUser)currentPlayer).setY(command[1])) {
+                        return true;
+                    }
                 }
-                try {
-                    x = Integer.parseInt(command[0]);
-                    y = Integer.parseInt(command[1]);
-                } catch (NumberFormatException e) {
-                    throw new Exception("You should enter numbers!");
-                }
-                if (x > FIELD_SIZE_X || x < 0 || y > FIELD_SIZE_Y || y < 0) {
-                    throw new Exception(String.format("Coordinates should be from 1 to %d!", FIELD_SIZE_X));
-                }
-                ((PlayerUser)currentPlayer).setX(x - 1);
-                ((PlayerUser)currentPlayer).setY(FIELD_SIZE_Y - y);
-                break;
+                return false;
             }
         }
+        return false;
     }
 
     private Player createPlayer(String type, char c) {
