@@ -36,7 +36,19 @@ public class PlayerAI implements Player, Common {
     @Override
     public boolean move(GameField field) {
         do {
-            setRandomCoordinates();
+            if (level == Level.MEDIUM) {
+                if (field.checkRow(this) == 2) {
+                    setRandomX();
+                } else if (field.checkColumn(this) == 2) {
+                    setRandomY();
+                } else {
+                    setRandomX();
+                    setRandomY();
+                }
+            } else {
+                setRandomX();
+                setRandomY();
+            }
         } while (!field.makeStep(x, y, c));
         System.out.println("Making move level \"" + level.toString().toLowerCase() + "\"");
         return true;
@@ -46,9 +58,13 @@ public class PlayerAI implements Player, Common {
         return level;
     }
 
-    private void setRandomCoordinates() {
+    private void setRandomX() {
         Random random = new Random();
         x = random.nextInt(3);
+    }
+
+    private void setRandomY() {
+        Random random = new Random();
         y = FIELD_SIZE_Y - 1 - random.nextInt(3);
     }
 

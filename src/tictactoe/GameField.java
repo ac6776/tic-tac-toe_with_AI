@@ -55,30 +55,52 @@ public class GameField implements Common{
     }
 
     public boolean checkForWin(Player player) {
-        return checkRow(player.getY()) || checkColumn(player.getX()) || checkMainDiag() || checkSecondDiag();
+        return checkRow(player) == 3 || checkColumn(player) == 3;
     }
 
-    private boolean checkRow(int y) {
+    public int checkRow(Player player) {
+        int counterCELL_EMPTY = 0;
         int counter = 0;
-        for (int j = 0; j < LENGTH_FOR_WIN - 1; j++) {
-            if (field[y][j] != CELL_EMPTY) {
-                if (field[y][j] == field[y][j + 1]) {
-                    counter++;
-                }
+        int y = player.getY();
+        for (int j = 0; j < LENGTH_FOR_WIN; j++) {
+            if (field[y][j] == CELL_EMPTY) {
+                counterCELL_EMPTY++;
+            }
+            if (field[y][j] == player.getC()) {
+                counter++;
             }
         }
-        return counter == LENGTH_FOR_WIN - 1;
+        if (counter == 2) {
+            if (counterCELL_EMPTY == 1) {
+                return 2;
+            }
+        }
+        if (counter == 3) {
+            return 3;
+        }
+        return -1;
     }
-    private boolean checkColumn(int x) {
+    public int checkColumn(Player player) {
+        int counterCELL_EMPTY = 0;
         int counter = 0;
-        for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field[i][x] != CELL_EMPTY) {
-                if (field[i][x] == field[i + 1][x]) {
-                    counter++;
-                }
+        int x = player.getX();
+        for (int i = 0; i < LENGTH_FOR_WIN; i++) {
+            if (field[i][x] == CELL_EMPTY) {
+                counterCELL_EMPTY++;
+            }
+            if (field[i][x] == player.getC()) {
+                counter++;
             }
         }
-        return counter == LENGTH_FOR_WIN - 1;
+        if (counter == 2) {
+            if (counterCELL_EMPTY == 1) {
+                return 2;
+            }
+        }
+        if (counter == 3) {
+            return 3;
+        }
+        return -1;
     }
     private boolean checkMainDiag() {
         int counter = 0;
