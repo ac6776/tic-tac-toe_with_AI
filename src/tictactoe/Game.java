@@ -10,7 +10,6 @@ public class Game implements Common{
     private Player currentPlayer;
 
     public Game() {
-        field = new GameField();
         state = State.INIT;
     }
 
@@ -22,9 +21,7 @@ public class Game implements Common{
                 case INIT: {
                     state.print();
                     String input = scanner.nextLine();
-                    if (parseInput(input)) {
-                        field.print();
-                    }
+                    parseInput(input);
                     break;
                 }
                 case PLAYING: {
@@ -82,6 +79,15 @@ public class Game implements Common{
 //        return false;
 //    }
 
+    private void init(String arg1, String arg2) {
+        player1 = createPlayer(arg1, CELL_X);
+        player2 = createPlayer(arg2, CELL_O);
+        currentPlayer = player1;
+        field = new GameField();
+        state = State.PLAYING;
+        field.print();
+    }
+
     private boolean parseInput(String input) {
         String[] command = input.trim().toLowerCase().split(" ");
         switch (state) {
@@ -91,10 +97,7 @@ public class Game implements Common{
                     return true;
                 } else if (command[0].equals("start")) {
                     try {
-                        player1 = createPlayer(command[1], CELL_X);
-                        player2 = createPlayer(command[2], CELL_O);
-                        currentPlayer = player1;
-                        state = State.PLAYING;
+                        init(command[1], command[2]);
                         return true;
                     } catch (Exception e) {
                         System.out.println("Incorrect input");
