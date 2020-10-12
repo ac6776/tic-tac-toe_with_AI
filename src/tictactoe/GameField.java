@@ -55,18 +55,17 @@ public class GameField implements Common{
     }
 
     public boolean checkForWin(Player player) {
-        return checkRow(player) == 3 || checkColumn(player) == 3;
+        return checkRow(player.getY(), player.getC()) == 3 || checkColumn(player.getX(), player.getC()) == 3;
     }
 
-    public int checkRow(Player player) {
+    public int checkRow(int y, char curPlayerChar) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
-        int y = player.getY();
         for (int j = 0; j < LENGTH_FOR_WIN; j++) {
             if (field[y][j] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[y][j] == player.getC()) {
+            if (field[y][j] == curPlayerChar) {
                 counter++;
             }
         }
@@ -80,15 +79,14 @@ public class GameField implements Common{
         }
         return -1;
     }
-    public int checkColumn(Player player) {
+    public int checkColumn(int x, char curPlayerChar) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
-        int x = player.getX();
         for (int i = 0; i < LENGTH_FOR_WIN; i++) {
             if (field[i][x] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[i][x] == player.getC()) {
+            if (field[i][x] == curPlayerChar) {
                 counter++;
             }
         }
@@ -102,6 +100,7 @@ public class GameField implements Common{
         }
         return -1;
     }
+
     private boolean checkMainDiag() {
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
@@ -113,6 +112,7 @@ public class GameField implements Common{
         }
         return counter == LENGTH_FOR_WIN - 1;
     }
+
     private boolean checkSecondDiag() {
         int counter = 0;
         for (int j = LENGTH_FOR_WIN - 1, i = 0; j > 0; j--, i++) {

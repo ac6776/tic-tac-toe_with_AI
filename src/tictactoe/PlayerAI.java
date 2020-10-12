@@ -37,14 +37,23 @@ public class PlayerAI implements Player, Common {
     public boolean move(GameField field) {
         do {
             if (level == Level.MEDIUM) {
-                if (field.checkRow(this) == 2) {
+                if (field.checkRow(y, c) == 2) {
                     setRandomX();
-                } else if (field.checkColumn(this) == 2) {
+                } else if (field.checkColumn(x, c) == 2) {
                     setRandomY();
                 } else {
-                    setRandomX();
-                    setRandomY();
+                    if (blockRow(field) != -1) {
+                        y = blockRow(field);
+                        setRandomX();
+                    } else if (blockCol(field) != -1) {
+                        x = blockCol(field);
+                        setRandomY();
+                    } else {
+                        setRandomX();
+                        setRandomY();
+                    }
                 }
+
             } else {
                 setRandomX();
                 setRandomY();
@@ -71,5 +80,23 @@ public class PlayerAI implements Player, Common {
     enum Level {
         EASY,
         MEDIUM
+    }
+
+    private int blockRow(GameField field) {
+        for (int i = 0; i < 3; i++) {
+            if (field.checkRow(i, c == CELL_X ? CELL_O: CELL_X) == 2) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int blockCol(GameField field) {
+        for (int i = 0; i < 3; i++) {
+            if (field.checkColumn(i, c == CELL_X ? CELL_O: CELL_X) == 2) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
