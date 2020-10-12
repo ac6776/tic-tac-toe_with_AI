@@ -38,8 +38,8 @@ public class Game implements Common{
                     if (currentPlayer.move(field)) {
                         field.print();
 
-                        if (checkForEnd()) {
-                            if (checkForWin(field, currentPlayer.getX(), currentPlayer.getY())) {
+                        if (field.checkForEnd(currentPlayer)) {
+                            if (field.checkForWin(currentPlayer)) {
                                 if (currentPlayer.getC() == CELL_X) {
                                     state = State.X_WINS;
                                     state.print();
@@ -62,87 +62,25 @@ public class Game implements Common{
         }
     }
 
-    public boolean checkForEnd() {
-        return checkForWin(field, currentPlayer.getX(), currentPlayer.getY()) || checkForDraw(field);
-    }
 
-    public boolean checkForWin(GameField field, int x, int y) {
-        return checkRow(field, y) || checkColumn(field, x) || checkMainDiag(field) || checkSecondDiag(field);
-    }
 
-    private boolean checkRow(GameField field, int y) {
-        int counter = 0;
-        for (int j = 0; j < LENGTH_FOR_WIN - 1; j++) {
-            if (field.getField()[y][j] != CELL_EMPTY) {
-                if (field.getField()[y][j] == field.getField()[y][j + 1]) {
-                    counter++;
-                }
-            }
-        }
-        return counter == LENGTH_FOR_WIN - 1;
-    }
-    private boolean checkColumn(GameField field, int x) {
-        int counter = 0;
-        for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field.getField()[i][x] != CELL_EMPTY) {
-                if (field.getField()[i][x] == field.getField()[i + 1][x]) {
-                    counter++;
-                }
-            }
-        }
-        return counter == LENGTH_FOR_WIN - 1;
-    }
-    private boolean checkMainDiag(GameField field) {
-        int counter = 0;
-        for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field.getField()[i][i] != CELL_EMPTY) {
-                if (field.getField()[i][i] == field.getField()[i + 1][i + 1]) {
-                    counter++;
-                }
-            }
-        }
-        return counter == LENGTH_FOR_WIN - 1;
-    }
-    private boolean checkSecondDiag(GameField field) {
-        int counter = 0;
-        for (int j = LENGTH_FOR_WIN - 1, i = 0; j > 0; j--, i++) {
-            if (field.getField()[i][j] != CELL_EMPTY) {
-                if (field.getField()[i][j] == field.getField()[i + 1][j - 1]) {
-                    counter++;
-                }
-            }
-        }
-        return counter == LENGTH_FOR_WIN - 1;
-    }
+//    private boolean isAbleToWin() {
+//        return fillField(CELL_O) || fillField(CELL_X);
+//    }
 
-    private boolean checkForDraw(GameField field) {
-        for (int i = 0; i < FIELD_SIZE_Y; i++) {
-            for (int j = 0; j < FIELD_SIZE_X; j++) {
-                if (field.getField()[i][j] == CELL_EMPTY) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean isAbleToWin() {
-        return fillField(CELL_O) || fillField(CELL_X);
-    }
-
-    private boolean fillField(char cell) {
-        GameField tmpField = GameField.copy(field);
-        for (int i = 0; i < FIELD_SIZE_Y; i++) {
-            for (int j = 0; j < FIELD_SIZE_X; j++) {
-                if (tmpField.makeStep(j, i, cell)) {
-                    if (checkForWin(tmpField, j, i)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+//    private boolean fillField(char cell) {
+//        GameField tmpField = GameField.copy(field);
+//        for (int i = 0; i < FIELD_SIZE_Y; i++) {
+//            for (int j = 0; j < FIELD_SIZE_X; j++) {
+//                if (tmpField.makeStep(j, i, cell)) {
+//                    if (checkForWin(tmpField, j, i)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     private boolean parseInput(String input) {
         String[] command = input.trim().toLowerCase().split(" ");
