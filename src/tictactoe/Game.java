@@ -1,5 +1,6 @@
 package tictactoe;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class Game implements Common{
@@ -8,6 +9,7 @@ public class Game implements Common{
     private Player player1;
     private Player player2;
     private Player currentPlayer;
+    private Move currentMove;
 
     public Game() {
         state = State.INIT;
@@ -31,34 +33,49 @@ public class Game implements Common{
                             System.out.println("Enter the coordinates:");
                             input = scanner.nextLine();
                         } while (!parseInput(input));
-                    }
-                    if (currentPlayer.move(field)) {
-                        field.print();
 
-                        if (field.checkForEnd(currentPlayer)) {
-                            if (field.checkForWin(currentPlayer)) {
-                                if (currentPlayer.getC() == CELL_X) {
-                                    state = State.X_WINS;
+                        if (currentPlayer.move(field, currentMove)) {
+
+                            if (field.checkForEnd(currentPlayer, currentMove)) {
+                                if (field.checkForWin(currentPlayer, currentMove)) {
+                                    if (currentPlayer.getC() == CELL_X) {
+                                        state = State.X_WINS;
+                                        state.print();
+                                    }
+                                    if (currentPlayer.getC() == CELL_O) {
+                                        state = State.O_WINS;
+                                        state.print();
+                                    }
+                                } else {
+                                    state = State.DRAW;
                                     state.print();
                                 }
-                                if (currentPlayer.getC() == CELL_O) {
-                                    state = State.O_WINS;
-                                    state.print();
-                                }
-                            } else {
-                                state = State.DRAW;
-                                state.print();
+                                state = State.INIT;
                             }
-                            state = State.INIT;
                         }
-                        currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
+                    } else {
+                        switch (((PlayerAI)currentPlayer).getLevel()) {
+                            case EASY: {
+                                do {
+                                    currentMove = randomMove();
+                                } while (!field.move(currentMove.x, currentMove.y, currentPlayer.getC()));
+                                System.out.println("Making move level \"easy\"");
+                                break;
+                            }
+                        }
                     }
+                    field.print();
+                    currentPlayer = (currentPlayer.compare(player1) ? player2 : player1);
                     break;
                 }
             }
         }
     }
 
+    private Move randomMove() {
+        Random random = new Random();
+        return new Move(random.nextInt(3) + 1, random.nextInt(3) + 1);
+    }
 
 
 //    private boolean isAbleToWin() {
@@ -112,11 +129,32 @@ public class Game implements Common{
                     System.out.println("Coordinates should be 2");
                     return false;
                 } else {
-                    return ((PlayerUser) currentPlayer).setX(command[0]) && ((PlayerUser) currentPlayer).setY(command[1]);
+                    currentMove = parseCoordinates(command[0], command[1]);
+                    if (currentMove != null) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
+    }
+
+    private Move parseCoordinates(String x, String y) {
+        Move move = null;
+        try {
+            move = new Move(Integer.parseInt(x), Integer.parseInt(y));
+            if (move.x > FIELD_SIZE_X || move.x < 0) {
+                System.out.printf("Coordinates should be from 1 to %d!\n", FIELD_SIZE_X);
+                return null;
+            }
+            if (move.y > FIELD_SIZE_X || move.y < 0) {
+                System.out.printf("Coordinates should be from 1 to %d!\n", FIELD_SIZE_Y);
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("You should enter numbers!");
+        }
+        return move;
     }
 
     private Player createPlayer(String type, char c) {

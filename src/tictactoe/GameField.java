@@ -11,7 +11,7 @@ public class GameField implements Common{
     public void fill(char c) {
         for (int i = 0; i < FIELD_SIZE_Y; i++) {
             for (int j = 0; j < FIELD_SIZE_X; j++) {
-                makeStep(j, i, c);
+                move(j, i, c);
             }
         }
     }
@@ -28,7 +28,7 @@ public class GameField implements Common{
         System.out.println("-".repeat(9));
     }
 
-    public boolean makeStep(int x, int y, char c) {
+    public boolean move(int x, int y, char c) {
         if (field[y][x] == 0 || field[y][x] == CELL_EMPTY) {
             field[y][x] = c;
             return true;
@@ -50,12 +50,15 @@ public class GameField implements Common{
         return copy;
     }
 
-    public boolean checkForEnd(Player player) {
-        return checkForWin(player) || checkForDraw();
+    public boolean checkForEnd(Player player, Move move) {
+        return checkForWin(player, move) || checkForDraw();
     }
 
-    public boolean checkForWin(Player player) {
-        return checkRow(player.getY(), player.getC()) == 3 || checkColumn(player.getX(), player.getC()) == 3;
+    public boolean checkForWin(Player player, Move move) {
+        return checkRow(move.y, player.getC()) == 3 ||
+                checkColumn(move.x, player.getC()) == 3 ||
+                checkMainDiag(player.getC()) == 2 ||
+                checkSecondDiag(player.getC()) == 2;
     }
 
     public int checkRow(int y, char curPlayerChar) {
@@ -101,28 +104,28 @@ public class GameField implements Common{
         return -1;
     }
 
-    private boolean checkMainDiag() {
+    private int checkMainDiag(char curPlayerChar) {
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN - 1; i++) {
-            if (field[i][i] != CELL_EMPTY) {
+            if (field[i][i] == curPlayerChar) {
                 if (field[i][i] == field[i + 1][i + 1]) {
                     counter++;
                 }
             }
         }
-        return counter == LENGTH_FOR_WIN - 1;
+        return counter;
     }
 
-    private boolean checkSecondDiag() {
+    private int checkSecondDiag(char curPlayerChar) {
         int counter = 0;
         for (int j = LENGTH_FOR_WIN - 1, i = 0; j > 0; j--, i++) {
-            if (field[i][j] != CELL_EMPTY) {
+            if (field[i][j] == curPlayerChar) {
                 if (field[i][j] == field[i + 1][j - 1]) {
                     counter++;
                 }
             }
         }
-        return counter == LENGTH_FOR_WIN - 1;
+        return counter;
     }
 
     private boolean checkForDraw() {
