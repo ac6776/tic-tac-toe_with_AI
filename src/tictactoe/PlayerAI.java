@@ -36,27 +36,31 @@ public class PlayerAI implements Player, Common {
     @Override
     public boolean move(GameField field) {
         do {
-            if (level == Level.MEDIUM) {
-                if (field.checkRow(y, c) == 2) {
+            switch (level) {
+                case EASY: {
                     setRandomX();
-                } else if (field.checkColumn(x, c) == 2) {
                     setRandomY();
-                } else {
-                    if (blockRow(field) != -1) {
-                        y = blockRow(field);
+                    break;
+                }
+                case MEDIUM: {
+                    if (field.checkRow(y, c) == 2) {
                         setRandomX();
-                    } else if (blockCol(field) != -1) {
-                        x = blockCol(field);
+                    } else if (field.checkColumn(x, c) == 2) {
                         setRandomY();
                     } else {
-                        setRandomX();
-                        setRandomY();
+                        if (blockRow(field) != -1) {
+                            y = blockRow(field);
+                            setRandomX();
+                        } else if (blockCol(field) != -1) {
+                            x = blockCol(field);
+                            setRandomY();
+                        } else {
+                            setRandomX();
+                            setRandomY();
+                        }
                     }
+                    break;
                 }
-
-            } else {
-                setRandomX();
-                setRandomY();
             }
         } while (!field.makeStep(x, y, c));
         System.out.println("Making move level \"" + level.toString().toLowerCase() + "\"");
