@@ -5,8 +5,8 @@ public class Move implements Common {
     int y;
 
     public Move(int x, int y) {
-        this.x = x - 1;
-        this.y = FIELD_SIZE_Y - y;
+        this.x = x;
+        this.y = y;
     }
 
     @Override

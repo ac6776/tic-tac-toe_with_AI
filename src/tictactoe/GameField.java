@@ -1,5 +1,8 @@
 package tictactoe;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class GameField implements Common{
     private char[][] field;
 
@@ -50,22 +53,22 @@ public class GameField implements Common{
         return copy;
     }
 
-    public boolean checkForEnd(Player player) {
-        return checkForWin(player) || checkForDraw();
+    public boolean checkForEnd(Player player, Move move) {
+        return checkForWin(player, move) || checkForDraw();
     }
 
-    public boolean checkForWin(Player player) {
-        return checkRow(player.getY(), player.getC()) == 3 || checkColumn(player.getX(), player.getC()) == 3;
+    public boolean checkForWin(Player player, Move move) {
+        return checkRow(player, move) == 3 || checkColumn(player, move) == 3;
     }
 
-    public int checkRow(int y, char curPlayerChar) {
+    public int checkRow(Player player, Move move) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
         for (int j = 0; j < LENGTH_FOR_WIN; j++) {
-            if (field[y][j] == CELL_EMPTY) {
+            if (field[move.y][j] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[y][j] == curPlayerChar) {
+            if (field[move.y][j] == player.getC()) {
                 counter++;
             }
         }
@@ -79,14 +82,14 @@ public class GameField implements Common{
         }
         return -1;
     }
-    public int checkColumn(int x, char curPlayerChar) {
+    public int checkColumn(Player player, Move move) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN; i++) {
-            if (field[i][x] == CELL_EMPTY) {
+            if (field[i][move.x] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[i][x] == curPlayerChar) {
+            if (field[i][move.x] == player.getC()) {
                 counter++;
             }
         }
@@ -134,5 +137,17 @@ public class GameField implements Common{
             }
         }
         return true;
+    }
+
+    public List<Move> getAvailableMoves() {
+        List<Move> availableMoves = new LinkedList<>();
+        for (int i = 0; i < FIELD_SIZE_Y; i++) {
+            for (int j = 0; j < FIELD_SIZE_X; j++) {
+                if (field[i][j] == CELL_EMPTY) {
+                    availableMoves.add(new Move(j, i));
+                }
+            }
+        }
+        return availableMoves;
     }
 }
