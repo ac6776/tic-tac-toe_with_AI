@@ -9,8 +9,8 @@ public class Game implements Common{
     private Player player1;
     private Player player2;
     private Player currentPlayer;
-    private List<Move> availableMoves;
-    private Move currentMove;
+//    private List<Move> availableMoves;
+//    private Move currentMove;
 
     public Game() {
         state = State.INIT;
@@ -35,11 +35,11 @@ public class Game implements Common{
                             input = scanner.nextLine();
                         } while (!parseInput(input));
                     }
-                    if (currentPlayer.move(field, currentMove)) {
+                    if (currentPlayer.move(field)) {
                         field.print();
 
-                        if (field.checkForEnd(currentPlayer, currentMove)) {
-                            if (field.checkForWin(currentPlayer, currentMove)) {
+                        if (field.checkForEnd(currentPlayer)) {
+                            if (field.checkForWin(currentPlayer)) {
                                 if (currentPlayer.getC() == CELL_X) {
                                     state = State.X_WINS;
                                     state.print();
@@ -68,7 +68,7 @@ public class Game implements Common{
         currentPlayer = player1;
         field = new GameField();
         state = State.PLAYING;
-        availableMoves = field.getAvailableMoves();
+//        availableMoves = field.getAvailableMoves();
         field.print();
     }
 
@@ -100,11 +100,7 @@ public class Game implements Common{
                         int x = Integer.parseInt(command[0]);
                         int y = Integer.parseInt(command[1]);
                         if ((x > 0 && x <= FIELD_SIZE_X) && (y > 0 && y <= FIELD_SIZE_Y)) {
-                            currentMove = getMoveFromAvailableMoves(x - 1, FIELD_SIZE_Y - y);
-                            if (currentMove == null) {
-                                System.out.println("This cell is occupied!");
-                                return false;
-                            }
+                            ((PlayerUser)currentPlayer).setMove(x, y);
                             return true;
                         } else {
                             System.out.println("Coordinates must be between from 1 to 3!");
@@ -126,14 +122,14 @@ public class Game implements Common{
         return new PlayerAI(c, type);
     }
 
-    private Move getMoveFromAvailableMoves(int x, int y) {
-        for (int i = 0; i < availableMoves.size(); i++) {
-            if (availableMoves.get(i).x == x && availableMoves.get(i).y == y) {
-                return availableMoves.remove(i);
-            }
-        }
-        return null;
-    }
+//    private Move getMoveFromAvailableMoves(int x, int y) {
+//        for (int i = 0; i < availableMoves.size(); i++) {
+//            if (availableMoves.get(i).x == x && availableMoves.get(i).y == y) {
+//                return availableMoves.remove(i);
+//            }
+//        }
+//        return null;
+//    }
 }
 
 

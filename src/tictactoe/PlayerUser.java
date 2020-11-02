@@ -2,6 +2,7 @@ package tictactoe;
 
 public class PlayerUser implements Player, Common {
     private char c;
+    private Move move;
 
     public PlayerUser(char c) {
         this.c = c;
@@ -18,11 +19,24 @@ public class PlayerUser implements Player, Common {
     }
 
     @Override
-    public boolean move(GameField field, Move move) {
-        if (!field.makeStep(move.x, move.y, c)) {
+    public boolean move(GameField field) {
+        if (!field.makeStep(move, c)) {
             System.out.println("This cell is occupied! Choose another one!");
             return false;
         }
         return true;
+    }
+
+    public void setMove(Move move) {
+        this.move = move;
+    }
+
+    public void setMove(int x, int y) {
+        move = new Move(x, y);
+    }
+
+    @Override
+    public Move getMove() {
+        return move;
     }
 }

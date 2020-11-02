@@ -14,7 +14,7 @@ public class GameField implements Common{
     public void fill(char c) {
         for (int i = 0; i < FIELD_SIZE_Y; i++) {
             for (int j = 0; j < FIELD_SIZE_X; j++) {
-                makeStep(j, i, c);
+                makeStep(new Move(j, i), c);
             }
         }
     }
@@ -31,9 +31,17 @@ public class GameField implements Common{
         System.out.println("-".repeat(9));
     }
 
-    public boolean makeStep(int x, int y, char c) {
-        if (field[y][x] == 0 || field[y][x] == CELL_EMPTY) {
-            field[y][x] = c;
+//    public boolean makeStep(int x, int y, char c) {
+//        if (field[y][x] == 0 || field[y][x] == CELL_EMPTY) {
+//            field[y][x] = c;
+//            return true;
+//        }
+//        return false;
+//    }
+
+    public boolean makeStep(Move move, char c) {
+        if (field[move.y][move.x] == 0 || field[move.y][move.x] == CELL_EMPTY) {
+            field[move.y][move.x] = c;
             return true;
         }
         return false;
@@ -53,22 +61,22 @@ public class GameField implements Common{
         return copy;
     }
 
-    public boolean checkForEnd(Player player, Move move) {
-        return checkForWin(player, move) || checkForDraw();
+    public boolean checkForEnd(Player player) {
+        return checkForWin(player) || checkForDraw();
     }
 
-    public boolean checkForWin(Player player, Move move) {
-        return checkRow(player, move) == 3 || checkColumn(player, move) == 3;
+    public boolean checkForWin(Player player) {
+        return checkRow(player) == 3 || checkColumn(player) == 3;
     }
 
-    public int checkRow(Player player, Move move) {
+    public int checkRow(Player player) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
         for (int j = 0; j < LENGTH_FOR_WIN; j++) {
-            if (field[move.y][j] == CELL_EMPTY) {
+            if (field[player.getMove().y][j] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[move.y][j] == player.getC()) {
+            if (field[player.getMove().y][j] == player.getC()) {
                 counter++;
             }
         }
@@ -82,14 +90,14 @@ public class GameField implements Common{
         }
         return -1;
     }
-    public int checkColumn(Player player, Move move) {
+    public int checkColumn(Player player) {
         int counterCELL_EMPTY = 0;
         int counter = 0;
         for (int i = 0; i < LENGTH_FOR_WIN; i++) {
-            if (field[i][move.x] == CELL_EMPTY) {
+            if (field[i][player.getMove().x] == CELL_EMPTY) {
                 counterCELL_EMPTY++;
             }
-            if (field[i][move.x] == player.getC()) {
+            if (field[i][player.getMove().x] == player.getC()) {
                 counter++;
             }
         }

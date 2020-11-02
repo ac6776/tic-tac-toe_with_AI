@@ -5,6 +5,7 @@ import java.util.Random;
 public class PlayerAI implements Player, Common {
     private char c;
     private Level level;
+    private Move move;
 
     public PlayerAI(char c, String level) {
         this.c = c;
@@ -22,9 +23,36 @@ public class PlayerAI implements Player, Common {
     }
 
     @Override
-    public boolean move(GameField field, Move move) {
+    public boolean move(GameField field) {
+        switch (level) {
+            case EASY: {
+                move = field.getAvailableMoves().get(new Random().nextInt(field.getAvailableMoves().size()));
+                break;
+            }
+            case MEDIUM: {
+//                if (field.checkRow(y, c) == 2) {
+//                    setRandomX();
+//                } else if (field.checkColumn(x, c) == 2) {
+//                    setRandomY();
+//                } else {
+//                    if (blockRow(field) != -1) {
+//                        y = blockRow(field);
+//                        setRandomX();
+//                    } else if (blockCol(field) != -1) {
+//                        x = blockCol(field);
+//                        setRandomY();
+//                    } else {
+//                        setRandomX();
+//                        setRandomY();
+//                    }
+//                }
+//                break;
+                move = field.getAvailableMoves().get(new Random().nextInt(field.getAvailableMoves().size()));
+                break;
+            }
+        }
         System.out.println("Making move level \"" + level.toString().toLowerCase() + "\"");
-        return field.makeStep(move.x, move.y, c);
+        return field.makeStep(move, c);
     }
 
     public Level getLevel() {
@@ -64,4 +92,10 @@ public class PlayerAI implements Player, Common {
 //        }
 //        return -1;
 //    }
+
+
+    @Override
+    public Move getMove() {
+        return move;
+    }
 }
