@@ -100,7 +100,7 @@ public class Game implements Common{
                         int x = Integer.parseInt(command[0]);
                         int y = Integer.parseInt(command[1]);
                         if ((x > 0 && x <= FIELD_SIZE_X) && (y > 0 && y <= FIELD_SIZE_Y)) {
-                            ((PlayerUser)currentPlayer).setMove(x, y);
+                            ((PlayerUser)currentPlayer).setMove(x - 1, FIELD_SIZE_Y - y);
                             return true;
                         } else {
                             System.out.println("Coordinates must be between from 1 to 3!");
